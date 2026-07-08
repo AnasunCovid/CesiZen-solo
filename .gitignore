@@ -1,0 +1,21 @@
+# Dépendances
+node_modules/
+
+# Secrets et config locale
+.env
+.env.local
+
+# Builds
+dist/
+build/
+
+# Couverture de tests
+coverage/
+
+# Logs
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
