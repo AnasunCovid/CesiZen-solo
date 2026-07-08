@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.js'],
-  setupFilesAfterFramework: [],
+  setupFilesAfterEnv: [],
   globalSetup: './tests/globalSetup.js',
   globalTeardown: './tests/globalTeardown.js',
   coverageDirectory: 'coverage',

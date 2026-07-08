@@ -34,18 +34,14 @@ const register = async (req, res) => {
       [email.toLowerCase(), hash, first_name.trim(), last_name.trim()]
     );
 
-    const token = signToken(result.insertId, 'user');
+    const [[newUser]] = await pool.query(
+      'SELECT id, email, first_name, last_name, role, created_at FROM users WHERE id = ?',
+      [result.insertId]
+    );
 
-    return res.status(201).json({
-      token,
-      user: {
-        id: result.insertId,
-        email: email.toLowerCase(),
-        first_name: first_name.trim(),
-        last_name: last_name.trim(),
-        role: 'user',
-      },
-    });
+    const token = signToken(newUser.id, newUser.role);
+
+    return res.status(201).json({ token, user: newUser });
   } catch (err) {
     console.error('[auth/register]', err);
     return res.status(500).json({ message: 'Erreur serveur' });
@@ -62,7 +58,7 @@ const login = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT id, email, password_hash, first_name, last_name, role, is_active
+      `SELECT id, email, password_hash, first_name, last_name, role, is_active, created_at
        FROM users WHERE email = ?`,
       [email.toLowerCase()]
     );
@@ -92,6 +88,7 @@ const login = async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
+        created_at: user.created_at,
       },
     });
   } catch (err) {

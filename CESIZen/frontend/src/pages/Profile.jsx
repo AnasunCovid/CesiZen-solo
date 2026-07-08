@@ -71,7 +71,7 @@ export default function Profile() {
         <span className={user?.role === 'admin' ? 'badge-admin' : 'badge-user'}>
           {user?.role === 'admin' ? 'Administrateur' : 'Utilisateur'}
         </span>
-        {' '}· Membre depuis le {new Date(user?.created_at).toLocaleDateString('fr-FR')}
+        {' '}· Membre depuis le {user?.created_at ? new Date(user.created_at).toLocaleDateString('fr-FR', { timeZone: 'UTC' }) : '—'}
       </p>
 
       {/* Informations personnelles */}
