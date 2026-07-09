@@ -1,0 +1,52 @@
+services:
+
+  db:
+    image: mysql:8.0
+    container_name: cesizen-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: cesizen
+      MYSQL_USER: cesizen
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Initialisation automatique au premier démarrage :
+      - ./CESIZen/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./CESIZen/database/seeds.sql:/docker-entrypoint-initdb.d/02-seeds.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: ./CESIZen/backend
+    container_name: cesizen-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: cesizen
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: cesizen
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 24h
+      CORS_ORIGIN: http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./CESIZen/frontend
+    container_name: cesizen-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
